@@ -43,11 +43,18 @@ export default function Page() {
 
   return (
     <div>
-      <h1 className="mb-4">PCLU Tabulation</h1>
+      <div className="hero d-flex align-items-center justify-content-between">
+        <div>
+          <h1 className="h4 mb-1">PCLU Tabulation</h1>
+          <div className="muted">Simple scoring and live scoreboard</div>
+        </div>
+        <div className="text-end muted">Build: local</div>
+      </div>
+
       <div className="row">
-        <div className="col-md-5">
-          <div className="card mb-3 p-3">
-            <h5>Manage Contestants</h5>
+        <div className="col-lg-5 mb-3">
+          <div className="card p-3 mb-3">
+            <h6 className="mb-3">Manage Contestants</h6>
             <form onSubmit={addContestant} className="d-flex gap-2">
               <input className="form-control" value={name} onChange={e => setName(e.target.value)} placeholder="Contestant name" />
               <button className="btn btn-primary" type="submit">Add</button>
@@ -55,7 +62,7 @@ export default function Page() {
           </div>
 
           <div className="card p-3">
-            <h5>Submit Score</h5>
+            <h6 className="mb-3">Submit Score</h6>
             <form onSubmit={submitScore} className="d-flex flex-column gap-2">
               <select className="form-select" value={selected} onChange={e => setSelected(e.target.value)}>
                 <option value="">Select contestant</option>
@@ -68,18 +75,37 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="col-md-7">
+        <div className="col-lg-7">
           <div className="card p-3">
-            <h5>Scoreboard</h5>
-            <div>
-              {scoreboard.length === 0 && <div>No contestants yet.</div>}
-              {scoreboard.map(s => (
-                <div key={s.id} className="score-row">
-                  <strong>{s.name}</strong>
-                  <div>Total: {s.total.toFixed(2)} — avg: {s.avg.toFixed(2)} ({s.count})</div>
-                </div>
-              ))}
-            </div>
+            <h6 className="mb-3">Scoreboard</h6>
+            {scoreboard.length === 0 ? (
+              <div className="text-muted">No scores yet — add contestants and submit scores.</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 48 }}>#</th>
+                      <th>Name</th>
+                      <th className="text-end">Total</th>
+                      <th className="text-end">Avg</th>
+                      <th className="text-end">Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scoreboard.map((s, i) => (
+                      <tr key={s.id}>
+                        <td>{i + 1}</td>
+                        <td><strong>{s.name}</strong></td>
+                        <td className="text-end">{s.total.toFixed(2)}</td>
+                        <td className="text-end">{s.avg.toFixed(2)}</td>
+                        <td className="text-end">{s.count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </div>

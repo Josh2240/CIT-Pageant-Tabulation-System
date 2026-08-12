@@ -42,8 +42,9 @@ export async function getPool() {
 
       pool = p
       return pool
-    } catch (err) {
-      console.warn('MySQL connection failed, falling back to SQLite:', err.message || err)
+    } catch (err: any) {
+      const msg = err && typeof err === 'object' && 'message' in err ? (err as any).message : String(err)
+      console.warn('MySQL connection failed, falling back to SQLite:', msg)
     }
   }
 
