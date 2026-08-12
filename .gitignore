@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.env
+.env.local
+*.sqlite
+Backend/.git_backup/
+Backend/node_modules/
+.DS_Store
