@@ -28,3 +28,8 @@ Notes on migration:
 - This repository now contains a Next.js app at the project root. API routes are under `app/api/` and use MySQL. If you prefer SQLite or the previous Express backend, that code remains in `Backend/`.
 
 # CIT-Pageant-Tabulation-System
+
+
+### UPDATES:
+
+- changing from MySQL to PostgreSQL
