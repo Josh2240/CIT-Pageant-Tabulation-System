@@ -133,10 +133,13 @@ body.app-shell {
   justify-items: center;
   gap: 0.35rem;
   padding: 1.2rem;
+  margin-top: auto;
   color: #5e687b;
   font-size: 0.78rem;
   font-weight: 600;
   text-align: center;
+  border-top: 1px solid rgba(46, 49, 146, 0.08);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .footer-brand {
@@ -317,7 +320,6 @@ body.app-shell {
 }
 
 .card.panel-card {
-  height: 100%;
   padding: 1.4rem;
   border: 1px solid rgba(217, 226, 236, 0.95);
   border-radius: 1.2rem;
