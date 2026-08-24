@@ -1,7 +1,14 @@
-import mysql from 'mysql2/promise'
-import path from 'path'
+import * as mysql from 'mysql2/promise'
+import * as path from 'node:path'
 
 let pool: any = null
+
+function getErrorMessage(err: unknown): string {
+  if (err && typeof err === 'object' && 'message' in err) {
+    return (err as { message: string }).message
+  }
+  return String(err)
+}
 
 export async function getPool() {
   if (pool) return pool
@@ -42,14 +49,13 @@ export async function getPool() {
 
       pool = p
       return pool
-    } catch (err: any) {
-      const msg = err && typeof err === 'object' && 'message' in err ? (err as any).message : String(err)
-      console.warn('MySQL connection failed, falling back to SQLite:', msg)
+    } catch (err) {
+      console.warn('MySQL connection failed, falling back to SQLite:', getErrorMessage(err))
     }
   }
 
   // Fallback to SQLite
-  const sqlite3 = require('sqlite3').verbose()
+  const sqlite3 = (await import('sqlite3')).verbose()
   const dbFile = path.join(process.cwd(), 'data.sqlite')
   const db = new sqlite3.Database(dbFile)
 

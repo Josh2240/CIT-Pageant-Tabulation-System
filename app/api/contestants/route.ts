@@ -12,7 +12,6 @@ export async function POST(req: Request) {
   if (!body.name) return NextResponse.json({ error: 'name required' }, { status: 400 })
   const pool = await getPool()
   const [res] = await pool.query('INSERT INTO contestants (name) VALUES (?)', [body.name])
-  // @ts-ignore
-  const insertId = res.insertId || (res as any).insertId
+  const insertId = typeof res === 'object' && res !== null && 'insertId' in res ? (res as { insertId: number }).insertId : undefined
   return NextResponse.json({ id: insertId, name: body.name })
 }

@@ -14,13 +14,23 @@ export default function App() {
   const [score, setScore] = useState('')
 
   async function loadContestants() {
-    const res = await fetch('/api/contestants')
-    setContestants(await res.json())
+    try {
+      const res = await fetch('/api/contestants')
+      if (!res.ok) throw new Error('Failed to load contestants')
+      setContestants(await res.json())
+    } catch (err) {
+      console.error('Error loading contestants:', err)
+    }
   }
 
   async function loadScoreboard() {
-    const res = await fetch('/api/scoreboard')
-    setScoreboard(await res.json())
+    try {
+      const res = await fetch('/api/scoreboard')
+      if (!res.ok) throw new Error('Failed to load scoreboard')
+      setScoreboard(await res.json())
+    } catch (err) {
+      console.error('Error loading scoreboard:', err)
+    }
   }
 
   useEffect(() => {
@@ -31,27 +41,39 @@ export default function App() {
   async function addContestant(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
-    await fetch('/api/contestants', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name })
-    })
-    setName('')
-    await loadContestants()
-    await loadScoreboard()
+    try {
+      const res = await fetch('/api/contestants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      })
+      if (!res.ok) throw new Error('Failed to add contestant')
+      setName('')
+      await loadContestants()
+      await loadScoreboard()
+    } catch (err) {
+      console.error('Error adding contestant:', err)
+    }
   }
 
   async function submitScore(e: React.FormEvent) {
     e.preventDefault()
     if (!selected || score === '') return
-    await fetch('/api/scores', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contestantId: Number(selected), judge, score: Number(score) })
-    })
-    setJudge('')
-    setScore('')
-    await loadScoreboard()
+    const numericScore = Number(score)
+    if (Number.isNaN(numericScore)) return
+    try {
+      const res = await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contestantId: Number(selected), judge, score: numericScore })
+      })
+      if (!res.ok) throw new Error('Failed to submit score')
+      setJudge('')
+      setScore('')
+      await loadScoreboard()
+    } catch (err) {
+      console.error('Error submitting score:', err)
+    }
   }
 
   return (

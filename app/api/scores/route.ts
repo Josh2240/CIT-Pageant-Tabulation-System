@@ -12,7 +12,6 @@ export async function POST(req: Request) {
   if (!body.contestantId || body.score === undefined) return NextResponse.json({ error: 'contestantId and score required' }, { status: 400 })
   const pool = await getPool()
   const [res] = await pool.query('INSERT INTO scores (contestantId, judge, score) VALUES (?, ?, ?)', [Number(body.contestantId), body.judge || 'unknown', Number(body.score)])
-  // @ts-ignore
-  const insertId = res.insertId || (res as any).insertId
+  const insertId = typeof res === 'object' && res !== null && 'insertId' in res ? (res as { insertId: number }).insertId : undefined
   return NextResponse.json({ id: insertId, contestantId: Number(body.contestantId), judge: body.judge || 'unknown', score: Number(body.score) })
 }
