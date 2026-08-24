@@ -10,15 +10,15 @@ Quick start (Next.js fullstack):
 npm install
 ```
 
-2. Create a `.env` from `.env.example` and adjust your MySQL credentials
+1. Create a `.env` from `.env.example` and adjust your MySQL credentials
 
-3. Run the dev server
+1. Run the dev server
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000
+Open <http://localhost:3000>
 
 Tech stack:
  Frontend: Next.js 14 (App Router), TypeScript, Tailwind CSS, Bootstrap 5, Bootstrap Icons
@@ -26,8 +26,3 @@ Tech stack:
 
 Notes on migration:
  This repository now contains a Next.js app at the project root. API routes are under `app/api/` and use MySQL. If you prefer SQLite or the previous Express backend, that code remains in `Backend/`.
-
-CIT-Pageant-Tabulation-System
-
-UPDATES:
-changing from MySQL to PostgreSQL# PCLU-PAGEANT-TABULATION-SYSTEM-ORIGINAL-

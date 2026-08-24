@@ -1,4 +1,4 @@
-## PAGEANT TABULATION SYSTEM
+# PAGEANT TABULATION SYSTEM
 
 this code is made for IT Day
 this is to be use at the time that the judges are able to compute each students at the pageant

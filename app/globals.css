@@ -129,14 +129,35 @@ body.app-shell {
 }
 
 .site-footer {
-  display: flex;
-  justify-content: center;
-  gap: 0.55rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
   padding: 1.2rem;
   color: #5e687b;
   font-size: 0.78rem;
   font-weight: 600;
   text-align: center;
+}
+
+.footer-brand {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--pclu-indigo);
+  letter-spacing: 0.02em;
+}
+
+.footer-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.footer-updates {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--pclu-slate);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .footer-divider {

@@ -43,9 +43,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="container app-content">{children}</main>
 
         <footer className="site-footer">
-          <span>© {new Date().getFullYear()} Polytechnic College of La Union</span>
-          <span className="footer-divider" aria-hidden="true">•</span>
-          <span>Tabulation System</span>
+          <div className="footer-brand">CIT-Pageant-Tabulation-System</div>
+          <div className="footer-meta">
+            <span>© {new Date().getFullYear()} Polytechnic College of La Union</span>
+            <span className="footer-divider" aria-hidden="true">•</span>
+            <span>Tabulation System</span>
+          </div>
+          <div className="footer-updates">UPDATES: changing from MySQL to PostgreSQL</div>
         </footer>
       </body>
     </html>

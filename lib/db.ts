@@ -1,7 +1,11 @@
 import * as mysql from 'mysql2/promise'
 import * as path from 'node:path'
 
-let pool: any = null
+interface Pool {
+  query: <T = any>(sql: string, params?: any[]) => Promise<[T[], null]>
+}
+
+let pool: Pool | null = null
 
 function getErrorMessage(err: unknown): string {
   if (err && typeof err === 'object' && 'message' in err) {
@@ -10,7 +14,7 @@ function getErrorMessage(err: unknown): string {
   return String(err)
 }
 
-export async function getPool() {
+export async function getPool(): Promise<Pool> {
   if (pool) return pool
 
   const mysqlHost = process.env.MYSQL_HOST
@@ -47,7 +51,7 @@ export async function getPool() {
         FOREIGN KEY (contestantId) REFERENCES contestants(id)
       )`)
 
-      pool = p
+      pool = p as unknown as Pool
       return pool
     } catch (err) {
       console.warn('MySQL connection failed, falling back to SQLite:', getErrorMessage(err))
@@ -94,9 +98,9 @@ export async function getPool() {
 
   // Adapter exposing query similar to mysql2 pool
   pool = {
-    query: async (sql: string, params: any[] = []) => {
+    query: async <T = any>(sql: string, params: any[] = []): Promise<[T[], null]> => {
       const rows = await allAsync(sql, params)
-      return [rows, null]
+      return [rows as T[], null]
     }
   }
 
