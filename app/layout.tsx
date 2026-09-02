@@ -10,6 +10,7 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  console.log('[PCLU Tabulation] RootLayout rendered at:', new Date().toISOString())
   return (
     <html lang="en">
       <body className="app-shell">
