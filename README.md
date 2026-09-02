@@ -27,4 +27,3 @@ Backend: Next.js API routes, MySQL (via `mysql2`), JWT / bcryptjs available for 
 
 Notes on migration:
 This repository now contains a Next.js app at the project root. API routes are under `app/api/` and use MySQL. If you prefer SQLite or the previous Express backend, that code remains in `Backend/`.
-
