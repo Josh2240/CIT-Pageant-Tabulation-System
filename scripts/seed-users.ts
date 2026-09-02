@@ -28,9 +28,9 @@ async function main() {
   }
 
   // Create admin account
-  const adminPassword = await bcrypt.hash(ADMIN_PASSWORD, 10)
-  try {
-    await pool.run('INSERT INTO users (username, password) VALUES (?, ?)', [ADMIN_USERNAME, ADMIN_PASSWORD])
+    const adminPassword = await bcrypt.hash(ADMIN_PASSWORD, 10)
+    try {
+      await pool.run('INSERT INTO users (username, password) VALUES (?, ?)', [ADMIN_USERNAME, adminPassword])
     console.log(`Created admin account: ${ADMIN_USERNAME}`)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
