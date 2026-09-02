@@ -3,6 +3,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import Image from 'next/image'
 import pcluLogo from '../Assets/pclu-college-logo.jpg'
 import './globals.css'
+import LogoutButton from './components/LogoutButton'
 
 export const metadata = {
   title: 'PCLU Tabulation System',
@@ -33,9 +34,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <span className="brand-subtitle">Pageant Scoreboard</span>
                 </span>
               </a>
-              <div className="nav-status d-none d-md-flex" aria-label="System status">
-                <span className="status-dot" aria-hidden="true" />
-                Ready for scoring
+              <div className="d-none d-md-flex align-items-center gap-3">
+                <div className="nav-status" aria-label="System status">
+                  <span className="status-dot" aria-hidden="true" />
+                  Ready for scoring
+                </div>
+                <LogoutButton />
               </div>
             </div>
           </nav>
