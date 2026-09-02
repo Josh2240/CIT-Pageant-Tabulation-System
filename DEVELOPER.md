@@ -2,4 +2,4 @@
 
 ## UPCOMING EVENT
 
-IT Day | on September, 1st week
+IT Day | on September, last week

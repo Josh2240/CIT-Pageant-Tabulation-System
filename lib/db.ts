@@ -67,7 +67,8 @@ export async function getPool(): Promise<Pool> {
   }
 
   // Fallback to SQLite
-  const sqlite3 = (await import('sqlite3')).verbose()
+  const sqlite3Mod = await import('sqlite3')
+  const sqlite3 = (sqlite3Mod.default || sqlite3Mod).verbose()
   const dbFile = path.join(process.cwd(), 'data.sqlite')
   const db = new sqlite3.Database(dbFile)
 

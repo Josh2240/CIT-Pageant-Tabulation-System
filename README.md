@@ -26,3 +26,19 @@ Tech stack:
 
 Notes on migration:
  This repository now contains a Next.js app at the project root. API routes are under `app/api/` and use MySQL. If you prefer SQLite or the previous Express backend, that code remains in `Backend/`.
+
+# ACCOUNTS
+
+These are the accounts for judges and also for monitoring of System Admin
+
+Judges
+1. judge1	judge2026	Judge
+2. judge2	judge2026	Judge
+3. judge3	judge2026	Judge
+4. judge4	judge2026	Judge
+5. judge5	judge2026	Judge
+6. judge5	judge2026	Judge
+7. judge7	judge2026	Judge
+
+System admin
+1.admin	admin2026	System admin
