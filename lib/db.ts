@@ -3,6 +3,7 @@ import * as path from 'node:path'
 
 interface Pool {
   query: <T = any>(sql: string, params?: any[]) => Promise<[T[], null]>
+  run: (sql: string, params?: any[]) => Promise<{ insertId?: number; affectedRows?: number }>
 }
 
 let pool: Pool | null = null
@@ -51,6 +52,13 @@ export async function getPool(): Promise<Pool> {
         FOREIGN KEY (contestantId) REFERENCES contestants(id)
       )`)
 
+      await p.query(`CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`)
+
       pool = p as unknown as Pool
       return pool
     } catch (err) {
@@ -68,6 +76,15 @@ export async function getPool(): Promise<Pool> {
       db.all(sql, params, (err: Error | null, rows: any[]) => {
         if (err) return reject(err)
         resolve(rows)
+      })
+    })
+  }
+
+  function runAsync(sql: string, params: any[] = []) {
+    return new Promise<{ lastID: number; changes: number }>((resolve, reject) => {
+      db.run(sql, params, function (err: Error | null) {
+        if (err) return reject(err)
+        resolve({ lastID: this.lastID, changes: this.changes })
       })
     })
   }
@@ -92,6 +109,15 @@ export async function getPool(): Promise<Pool> {
         )`,
         (err: Error | null) => { if (err) reject(err) }
       )
+      db.run(
+        `CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT NOT NULL UNIQUE,
+          password TEXT NOT NULL,
+          createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`,
+        (err: Error | null) => { if (err) reject(err) }
+      )
       resolve()
     })
   })
@@ -101,6 +127,10 @@ export async function getPool(): Promise<Pool> {
     query: async <T = any>(sql: string, params: any[] = []): Promise<[T[], null]> => {
       const rows = await allAsync(sql, params)
       return [rows as T[], null]
+    },
+    run: async (sql: string, params: any[] = []): Promise<{ insertId?: number; affectedRows?: number }> => {
+      const result = await runAsync(sql, params)
+      return { insertId: result.lastID, affectedRows: result.changes }
     }
   }
 

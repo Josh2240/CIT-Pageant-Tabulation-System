@@ -1,0 +1,80 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+
+export default function LoginPage() {
+  const router = useRouter()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!username.trim() || !password) return
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Login failed')
+      } else {
+        router.push('/')
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="login-wrapper d-flex align-items-center justify-content-center min-vh-100">
+      <div className="login-form-container">
+        <div className="login-logo text-center mb-4">
+          <i className="bi bi-trophy-fill login-logo-icon"></i>
+          <h1 className="login-title">PCLU Tabulation</h1>
+          <p className="login-subtitle">Sign in to your account</p>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label" htmlFor="username">Username</label>
+            <input
+              id="username"
+              className="form-control login-input"
+              type="text"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Enter username"
+              required
+              autoFocus
+            />
+          </div>
+          <div className="mb-4">
+            <label className="form-label" htmlFor="password">Password</label>
+            <input
+              id="password"
+              className="form-control login-input"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Enter password"
+              required
+            />
+          </div>
+          {error && <div className="alert alert-danger login-error">{error}</div>}
+          <button className="btn btn-brand w-100 login-btn" type="submit" disabled={loading}>
+            {loading ? 'Signing in…' : 'Sign In'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
