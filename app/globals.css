@@ -76,13 +76,13 @@ body.app-shell {
 }
 
 .brand-logo {
-  width: 100px;
-  height: 100px;
+  width: 145px;
+  height: 145px;
   max-width: none;
   border-radius: 50%;
   object-fit: cover;
   object-position: center top;
-  transform: translateY(22px);
+  transform: translateY(-2px);
 }
 
 .brand-copy {
@@ -366,6 +366,11 @@ body.app-shell {
   background: rgba(247, 246, 5, 0.2);
 }
 
+.panel-icon--purple {
+  color: #5b3a8c;
+  background: rgba(91, 58, 140, 0.12);
+}
+
 .panel-title {
   margin: 0;
   color: var(--pclu-ink);
@@ -645,9 +650,9 @@ body.app-shell {
   }
 
   .brand-logo {
-    width: 88px;
-    height: 88px;
-    transform: translateY(20.5px);
+    width: 122px;
+    height: 122px;
+    transform: translateY(-1.5px);
   }
 
   .app-content {
@@ -814,4 +819,20 @@ body.app-shell {
   font-weight: 700;
   font-size: 0.9rem;
   border-radius: 0.6rem;
+}
+
+.criteria-form .form-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--pclu-slate);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.criteria-scores .form-control-sm {
+  font-size: 0.8rem;
+}
+
+.scoreboard-table .text-end {
+  white-space: nowrap;
 }

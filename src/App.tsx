@@ -3,15 +3,27 @@
 import { useEffect, useState } from 'react'
 
 type Contestant = { id: number; name: string }
-type ScoreRow = { id: number; name: string; total: number; avg: number; count: number }
+type ScoreRow = { id: number; name: string; total: number; avg: number; count: number; criteriaScores: Record<number, number> }
+type ScoreEntry = { id: number; contestantId: number; judge: string; score: number; createdAt: string }
+type Criteria = { id: number; name: string; description: string | null; weight: number; maxScore: number }
 
 export default function App() {
   const [contestants, setContestants] = useState<Contestant[]>([])
   const [scoreboard, setScoreboard] = useState<ScoreRow[]>([])
+  const [scores, setScores] = useState<ScoreEntry[]>([])
+  const [criteria, setCriteria] = useState<Criteria[]>([])
   const [name, setName] = useState('')
   const [selected, setSelected] = useState<string | number>('')
   const [judge, setJudge] = useState('')
   const [score, setScore] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editName, setEditName] = useState('')
+  const [criteriaName, setCriteriaName] = useState('')
+  const [criteriaDesc, setCriteriaDesc] = useState('')
+  const [criteriaWeight, setCriteriaWeight] = useState('1')
+  const [criteriaMax, setCriteriaMax] = useState('10')
+  const [editingCriteriaId, setEditingCriteriaId] = useState<number | null>(null)
+  const [criteriaScores, setCriteriaScores] = useState<Record<number, string>>({})
 
   async function loadContestants() {
     try {
@@ -33,9 +45,31 @@ export default function App() {
     }
   }
 
+  async function loadScores() {
+    try {
+      const res = await fetch('/api/scores')
+      if (!res.ok) throw new Error('Failed to load scores')
+      setScores(await res.json())
+    } catch (err) {
+      console.error('Error loading scores:', err)
+    }
+  }
+
+  async function loadCriteria() {
+    try {
+      const res = await fetch('/api/criteria')
+      if (!res.ok) throw new Error('Failed to load criteria')
+      setCriteria(await res.json())
+    } catch (err) {
+      console.error('Error loading criteria:', err)
+    }
+  }
+
   useEffect(() => {
     loadContestants()
     loadScoreboard()
+    loadScores()
+    loadCriteria()
   }, [])
 
   async function addContestant(e: React.FormEvent) {
@@ -56,23 +90,120 @@ export default function App() {
     }
   }
 
+  async function updateContestant(id: number) {
+    if (!editName.trim()) return
+    try {
+      const res = await fetch(`/api/contestants/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editName })
+      })
+      if (!res.ok) throw new Error('Failed to update contestant')
+      setEditingId(null)
+      await loadContestants()
+      await loadScoreboard()
+    } catch (err) {
+      console.error('Error updating contestant:', err)
+    }
+  }
+
+  async function deleteContestant(id: number) {
+    if (!confirm('Delete this contestant and all their scores?')) return
+    try {
+      const res = await fetch(`/api/contestants/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete contestant')
+      await loadContestants()
+      await loadScoreboard()
+      await loadScores()
+    } catch (err) {
+      console.error('Error deleting contestant:', err)
+    }
+  }
+
+  async function deleteScore(id: number) {
+    if (!confirm('Delete this score?')) return
+    try {
+      const res = await fetch(`/api/scores/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete score')
+      await loadScoreboard()
+      await loadScores()
+    } catch (err) {
+      console.error('Error deleting score:', err)
+    }
+  }
+
   async function submitScore(e: React.FormEvent) {
     e.preventDefault()
     if (!selected || score === '') return
     const numericScore = Number(score)
     if (Number.isNaN(numericScore)) return
+
+    const criteriaScoreList = criteria.map(c => ({
+      criteriaId: c.id,
+      score: Number(criteriaScores[c.id]) || 0
+    }))
+
     try {
       const res = await fetch('/api/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contestantId: Number(selected), judge, score: numericScore })
+        body: JSON.stringify({
+          contestantId: Number(selected),
+          judge,
+          score: numericScore,
+          criteriaScores: criteriaScoreList
+        })
       })
       if (!res.ok) throw new Error('Failed to submit score')
       setJudge('')
       setScore('')
+      setCriteriaScores({})
       await loadScoreboard()
+      await loadScores()
     } catch (err) {
       console.error('Error submitting score:', err)
+    }
+  }
+
+  async function saveCriteria(e: React.FormEvent) {
+    e.preventDefault()
+    if (!criteriaName.trim()) return
+    try {
+      const res = await fetch('/api/criteria', {
+        method: editingCriteriaId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingCriteriaId,
+          name: criteriaName,
+          description: criteriaDesc,
+          weight: Number(criteriaWeight),
+          maxScore: Number(criteriaMax)
+        })
+      })
+      if (!res.ok) throw new Error('Failed to save criteria')
+      setCriteriaName('')
+      setCriteriaDesc('')
+      setCriteriaWeight('1')
+      setCriteriaMax('10')
+      setEditingCriteriaId(null)
+      await loadCriteria()
+    } catch (err) {
+      console.error('Error saving criteria:', err)
+    }
+  }
+
+  async function deleteCriteria(id: number) {
+    if (!confirm('Delete this criterion?')) return
+    try {
+      const res = await fetch('/api/criteria', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      })
+      if (!res.ok) throw new Error('Failed to delete criteria')
+      await loadCriteria()
+    } catch (err) {
+      console.error('Error deleting criteria:', err)
     }
   }
 
@@ -121,6 +252,88 @@ export default function App() {
             </form>
           </section>
 
+          <section className="card panel-card mb-4">
+            <div className="panel-heading">
+              <div className="panel-heading-copy">
+                <span className="panel-icon panel-icon--purple" aria-hidden="true"><i className="bi bi-sliders" /></span>
+                <div>
+                  <h2 className="panel-title">Judging Criteria</h2>
+                  <p className="panel-description">Define categories and weights for scoring.</p>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={saveCriteria} className="criteria-form">
+              <div className="row g-2 mb-3">
+                <div className="col-8">
+                  <label className="form-label">Name</label>
+                  <input className="form-control form-control-sm" value={criteriaName} onChange={e => setCriteriaName(e.target.value)} placeholder="e.g. Creativity" required />
+                </div>
+                <div className="col-4">
+                  <label className="form-label">Max Score</label>
+                  <input className="form-control form-control-sm" type="number" value={criteriaMax} onChange={e => setCriteriaMax(e.target.value)} placeholder="10" />
+                </div>
+              </div>
+              <div className="row g-2 mb-3">
+                <div className="col-6">
+                  <label className="form-label">Weight</label>
+                  <input className="form-control form-control-sm" type="number" step="0.1" value={criteriaWeight} onChange={e => setCriteriaWeight(e.target.value)} placeholder="1.0" />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Description</label>
+                  <input className="form-control form-control-sm" value={criteriaDesc} onChange={e => setCriteriaDesc(e.target.value)} placeholder="Optional" />
+                </div>
+              </div>
+              <div className="d-flex gap-2">
+                <button className="btn btn-sm btn-brand" type="submit">
+                  <i className="bi bi-plus-lg" /> {editingCriteriaId ? 'Update' : 'Add'} Criterion
+                </button>
+                {editingCriteriaId && (
+                  <button type="button" className="btn btn-sm btn-secondary" onClick={() => { setEditingCriteriaId(null); setCriteriaName(''); setCriteriaDesc(''); setCriteriaWeight('1'); setCriteriaMax('10') }}>
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {criteria.length > 0 && (
+              <div className="table-responsive mt-3">
+                <table className="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Weight</th>
+                      <th>Max</th>
+                      <th style={{ width: 90 }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {criteria.map(c => (
+                      <tr key={c.id}>
+                        <td>
+                          <strong>{c.name}</strong>
+                          {c.description && <div className="text-muted small">{c.description}</div>}
+                        </td>
+                        <td>{c.weight}</td>
+                        <td>{c.maxScore}</td>
+                        <td>
+                          <div className="d-flex gap-1">
+                            <button className="btn btn-sm btn-outline-primary" onClick={() => { setEditingCriteriaId(c.id); setCriteriaName(c.name); setCriteriaDesc(c.description || ''); setCriteriaWeight(String(c.weight)); setCriteriaMax(String(c.maxScore)) }}>
+                              <i className="bi bi-pencil" />
+                            </button>
+                            <button className="btn btn-sm btn-outline-danger" onClick={() => deleteCriteria(c.id)}>
+                              <i className="bi bi-trash" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
           <section className="card panel-card">
             <div className="panel-heading">
               <div className="panel-heading-copy">
@@ -143,10 +356,39 @@ export default function App() {
                   <input id="judge-name" className="form-control" value={judge} onChange={e => setJudge(e.target.value)} placeholder="Judge name" />
                 </div>
                 <div>
-                  <label className="form-label" htmlFor="score-value">Score</label>
+                  <label className="form-label" htmlFor="score-value">Total Score</label>
                   <input id="score-value" className="form-control" value={score} onChange={e => setScore(e.target.value)} type="number" step="0.01" placeholder="0.00" />
                 </div>
               </div>
+
+              {criteria.length > 0 && (
+                <div className="criteria-scores mt-3">
+                  <label className="form-label fw-bold">Criteria Scores</label>
+                  {criteria.map(c => (
+                    <div key={c.id} className="row g-2 mb-2 align-items-center">
+                      <div className="col-6">
+                        <label className="form-label mb-0 small">{c.name} {c.description && <span className="text-muted">({c.description})</span>}</label>
+                      </div>
+                      <div className="col-4">
+                        <input
+                          className="form-control form-control-sm"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max={c.maxScore}
+                          value={criteriaScores[c.id] || ''}
+                          onChange={e => setCriteriaScores(prev => ({ ...prev, [c.id]: e.target.value }))}
+                          placeholder={`0 / ${c.maxScore}`}
+                        />
+                      </div>
+                      <div className="col-2 text-end text-muted small">
+                        x{c.weight}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <button className="btn btn-submit" type="submit"><i className="bi bi-check2-circle" /> Submit score</button>
             </form>
           </section>
@@ -177,21 +419,109 @@ export default function App() {
                     <tr>
                       <th style={{ width: 58 }}>Rank</th>
                       <th>Name</th>
+                      {criteria.map(c => (
+                        <th key={c.id} className="text-end" title={c.description || c.name}>{c.name}</th>
+                      ))}
                       <th className="text-end">Total</th>
                       <th className="text-end">Avg</th>
                       <th className="text-end">Count</th>
+                      <th style={{ width: 110 }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {scoreboard.map((s, i) => (
                       <tr key={s.id} className={i < 3 ? `leader-row leader-row--${i + 1}` : undefined}>
                         <td><span className="rank-chip">{i + 1}</span></td>
-                        <td><strong className="contestant-name">{s.name}</strong></td>
+                        <td>
+                          {editingId === s.id ? (
+                            <div className="d-flex gap-2">
+                              <input
+                                className="form-control form-control-sm"
+                                value={editName}
+                                onChange={e => setEditName(e.target.value)}
+                                autoFocus
+                              />
+                              <button className="btn btn-sm btn-success" onClick={() => updateContestant(s.id)}>
+                                <i className="bi bi-check" />
+                              </button>
+                              <button className="btn btn-sm btn-secondary" onClick={() => setEditingId(null)}>
+                                <i className="bi bi-x" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="d-flex align-items-center gap-2">
+                              <strong className="contestant-name">{s.name}</strong>
+                              <button className="btn btn-sm btn-outline-primary" onClick={() => { setEditingId(s.id); setEditName(s.name) }} aria-label="Edit name">
+                                <i className="bi bi-pencil" />
+                              </button>
+                              <button className="btn btn-sm btn-outline-danger" onClick={() => deleteContestant(s.id)} aria-label="Delete contestant">
+                                <i className="bi bi-trash" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                        {criteria.map(c => (
+                          <td key={c.id} className="text-end">
+                            {s.criteriaScores[c.id] ? (s.criteriaScores[c.id] as number).toFixed(2) : '-'}
+                          </td>
+                        ))}
                         <td className="text-end"><span className="score-value">{s.total.toFixed(2)}</span></td>
                         <td className="text-end">{s.avg.toFixed(2)}</td>
                         <td className="text-end">{s.count}</td>
+                        <td>
+                          <button className="btn btn-sm btn-outline-danger" onClick={() => deleteScore(s.id)} aria-label="Delete all scores">
+                            <i className="bi bi-trash" /> Scores
+                          </button>
+                        </td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          <section className="card panel-card mt-4">
+            <div className="panel-heading">
+              <div className="panel-heading-copy">
+                <span className="panel-icon panel-icon--orange" aria-hidden="true"><i className="bi bi-list-ul" /></span>
+                <div>
+                  <h2 className="panel-title">All Scores</h2>
+                  <p className="panel-description">Individual score entries. Delete mistakes here.</p>
+                </div>
+              </div>
+            </div>
+            {scores.length === 0 ? (
+              <p className="text-muted mb-0">No scores submitted yet.</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Contestant</th>
+                      <th>Judge</th>
+                      <th className="text-end">Score</th>
+                      <th className="text-end">Date</th>
+                      <th style={{ width: 80 }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scores.map(sc => {
+                      const contestant = contestants.find(c => c.id === sc.contestantId)
+                      return (
+                        <tr key={sc.id}>
+                          <td>{contestant?.name ?? `#${sc.contestantId}`}</td>
+                          <td>{sc.judge}</td>
+                          <td className="text-end">{sc.score.toFixed(2)}</td>
+                          <td className="text-end">{new Date(sc.createdAt).toLocaleDateString()}</td>
+                          <td>
+                            <button className="btn btn-sm btn-outline-danger" onClick={() => deleteScore(sc.id)} aria-label="Delete score">
+                              <i className="bi bi-trash" />
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>

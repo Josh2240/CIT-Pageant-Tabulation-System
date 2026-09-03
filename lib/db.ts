@@ -59,6 +59,24 @@ export async function getPool(): Promise<Pool> {
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       )`)
 
+      await p.query(`CREATE TABLE IF NOT EXISTS criteria (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        weight DOUBLE NOT NULL DEFAULT 1.0,
+        maxScore DOUBLE NOT NULL DEFAULT 10.0,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`)
+
+      await p.query(`CREATE TABLE IF NOT EXISTS score_details (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        scoreId INT,
+        criteriaId INT,
+        score DOUBLE NOT NULL,
+        FOREIGN KEY (scoreId) REFERENCES scores(id) ON DELETE CASCADE,
+        FOREIGN KEY (criteriaId) REFERENCES criteria(id)
+      )`)
+
       pool = p as unknown as Pool
       return pool
     } catch (err) {
@@ -116,6 +134,28 @@ export async function getPool(): Promise<Pool> {
           username TEXT NOT NULL UNIQUE,
           password TEXT NOT NULL,
           createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`,
+        (err: Error | null) => { if (err) reject(err) }
+      )
+      db.run(
+        `CREATE TABLE IF NOT EXISTS criteria (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          description TEXT,
+          weight REAL NOT NULL DEFAULT 1.0,
+          maxScore REAL NOT NULL DEFAULT 10.0,
+          createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`,
+        (err: Error | null) => { if (err) reject(err) }
+      )
+      db.run(
+        `CREATE TABLE IF NOT EXISTS score_details (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          scoreId INTEGER,
+          criteriaId INTEGER,
+          score REAL NOT NULL,
+          FOREIGN KEY (scoreId) REFERENCES scores(id) ON DELETE CASCADE,
+          FOREIGN KEY (criteriaId) REFERENCES criteria(id)
         )`,
         (err: Error | null) => { if (err) reject(err) }
       )
