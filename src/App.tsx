@@ -249,7 +249,7 @@ export default function App() {
 
       <div className="row g-4">
         <div className="col-lg-5">
-          <section className="card panel-card mb-4">
+          <section className="card panel-card contestants-card mb-4">
             <div className="panel-heading">
               <div className="panel-heading-copy">
                 <span className="panel-icon panel-icon--blue" aria-hidden="true"><i className="bi bi-people-fill" /></span>
@@ -269,7 +269,7 @@ export default function App() {
           </section>
 
           {user?.role === 'admin' && (
-            <section className="card panel-card mb-4">
+            <section className="card panel-card criteria-card mb-4">
               <div className="panel-heading">
                 <div className="panel-heading-copy">
                   <span className="panel-icon panel-icon--purple" aria-hidden="true"><i className="bi bi-sliders" /></span>
@@ -365,7 +365,7 @@ export default function App() {
             </section>
           )}
 
-          <section className="card panel-card">
+          <section className="card panel-card submit-score-card">
             <div className="panel-heading">
               <div className="panel-heading-copy">
                 <span className="panel-icon panel-icon--orange" aria-hidden="true"><i className="bi bi-pencil-square" /></span>
@@ -512,7 +512,7 @@ export default function App() {
             )}
           </section>
 
-          <section className="card panel-card mt-4 mb-4">
+          <section className="card panel-card all-scores-card mt-4 mb-4">
             <div className="panel-heading">
               <div className="panel-heading-copy">
                 <span className="panel-icon panel-icon--orange" aria-hidden="true"><i className="bi bi-list-ul" /></span>

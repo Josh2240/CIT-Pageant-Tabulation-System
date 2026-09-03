@@ -498,6 +498,46 @@ body.app-shell {
   min-height: 100%;
 }
 
+@media (min-width: 992px) {
+  .tabulation-page > .row.g-4 {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 1.5rem;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .tabulation-page > .row.g-4 > [class*="col-lg-"] {
+    display: contents;
+  }
+
+  .contestants-card {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .criteria-card {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .submit-score-card {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .scoreboard-card {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+
+  .all-scores-card {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 0 !important;
+  }
+}
+
 .scoreboard-heading {
   margin-bottom: 1.2rem;
 }
