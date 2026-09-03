@@ -512,7 +512,7 @@ export default function App() {
             )}
           </section>
 
-          <section className="card panel-card mt-4">
+          <section className="card panel-card mt-4 mb-4">
             <div className="panel-heading">
               <div className="panel-heading-copy">
                 <span className="panel-icon panel-icon--orange" aria-hidden="true"><i className="bi bi-list-ul" /></span>
@@ -523,7 +523,11 @@ export default function App() {
               </div>
             </div>
             {scores.length === 0 ? (
-              <p className="text-muted mb-0">No scores submitted yet.</p>
+              <div className="scoreboard-empty">
+                <span className="empty-icon" aria-hidden="true"><i className="bi bi-inbox-fill" /></span>
+                <h3>No scores yet</h3>
+                <p>Submit a score above to start building the scoreboard.</p>
+              </div>
             ) : (
               <div className="table-responsive">
                 <table className="table table-sm align-middle mb-0">

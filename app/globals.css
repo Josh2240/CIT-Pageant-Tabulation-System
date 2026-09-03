@@ -687,6 +687,10 @@ body.app-shell {
     border-radius: 1rem;
   }
 
+  .scoreboard-card {
+    min-height: auto;
+  }
+
   .site-footer {
     flex-wrap: wrap;
     padding-right: 1rem;
