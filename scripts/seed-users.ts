@@ -15,7 +15,7 @@ async function main() {
     const password = await bcrypt.hash(DEFAULT_PASSWORD, 10)
 
     try {
-      await pool.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, password])
+      await pool.run('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', [username, password, 'judge'])
       console.log(`Created judge account: ${username}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
@@ -30,7 +30,7 @@ async function main() {
   // Create admin account
     const adminPassword = await bcrypt.hash(ADMIN_PASSWORD, 10)
     try {
-      await pool.run('INSERT INTO users (username, password) VALUES (?, ?)', [ADMIN_USERNAME, adminPassword])
+      await pool.run('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', [ADMIN_USERNAME, adminPassword, 'admin'])
     console.log(`Created admin account: ${ADMIN_USERNAME}`)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

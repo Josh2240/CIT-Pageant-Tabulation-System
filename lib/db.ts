@@ -56,6 +56,7 @@ export async function getPool(): Promise<Pool> {
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
+        role VARCHAR(50) NOT NULL DEFAULT 'judge',
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       )`)
 
@@ -133,6 +134,7 @@ export async function getPool(): Promise<Pool> {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           username TEXT NOT NULL UNIQUE,
           password TEXT NOT NULL,
+          role TEXT NOT NULL DEFAULT 'judge',
           createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )`,
         (err: Error | null) => { if (err) reject(err) }

@@ -6,8 +6,10 @@ type Contestant = { id: number; name: string }
 type ScoreRow = { id: number; name: string; total: number; avg: number; count: number; criteriaScores: Record<number, number> }
 type ScoreEntry = { id: number; contestantId: number; judge: string; score: number; createdAt: string }
 type Criteria = { id: number; name: string; description: string | null; percentage: number; maxScore: number }
+type User = { id: number; username: string; role: string }
 
 export default function App() {
+  const [user, setUser] = useState<User | null>(null)
   const [contestants, setContestants] = useState<Contestant[]>([])
   const [scoreboard, setScoreboard] = useState<ScoreRow[]>([])
   const [scores, setScores] = useState<ScoreEntry[]>([])
@@ -65,11 +67,25 @@ export default function App() {
     }
   }
 
+  async function loadUser() {
+    try {
+      const res = await fetch('/api/me')
+      if (!res.ok) throw new Error('Failed to load user')
+      const data = await res.json()
+      if (data.authenticated) {
+        setUser(data.user)
+      }
+    } catch (err) {
+      console.error('Error loading user:', err)
+    }
+  }
+
   useEffect(() => {
     loadContestants()
     loadScoreboard()
     loadScores()
     loadCriteria()
+    loadUser()
   }, [])
 
   async function addContestant(e: React.FormEvent) {
@@ -252,16 +268,17 @@ export default function App() {
             </form>
           </section>
 
-          <section className="card panel-card mb-4">
-            <div className="panel-heading">
-              <div className="panel-heading-copy">
-                <span className="panel-icon panel-icon--purple" aria-hidden="true"><i className="bi bi-sliders" /></span>
-                <div>
-                  <h2 className="panel-title">Judging Criteria</h2>
-                  <p className="panel-description">Define categories and percentages for scoring.</p>
+          {user?.role === 'admin' && (
+            <section className="card panel-card mb-4">
+              <div className="panel-heading">
+                <div className="panel-heading-copy">
+                  <span className="panel-icon panel-icon--purple" aria-hidden="true"><i className="bi bi-sliders" /></span>
+                  <div>
+                    <h2 className="panel-title">Judging Criteria</h2>
+                    <p className="panel-description">Define categories and percentages for scoring.</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
             <form onSubmit={saveCriteria} className="criteria-form">
               <div className="row g-2 mb-3">
@@ -344,8 +361,9 @@ export default function App() {
                   </tfoot>
                 </table>
               </div>
-            )}
-          </section>
+              )}
+            </section>
+          )}
 
           <section className="card panel-card">
             <div className="panel-heading">

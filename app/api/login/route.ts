@@ -7,6 +7,7 @@ interface UserRow {
   id: number
   username: string
   password: string
+  role: string
 }
 
 export async function GET() {
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
 
   try {
     const pool = await getPool()
-    const [users] = await pool.query<UserRow>('SELECT id, username, password FROM users WHERE username = ?', [body.username])
+    const [users] = await pool.query<UserRow>('SELECT id, username, password, role FROM users WHERE username = ?', [body.username])
 
     if (users.length === 0) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
@@ -38,12 +39,12 @@ export async function POST(req: Request) {
     }
 
     const token = jwt.sign(
-      { userId: user.id, username: user.username },
+      { userId: user.id, username: user.username, role: user.role },
       process.env.JWT_SECRET || 'fallback_secret',
       { expiresIn: '8h' }
     )
 
-    const res = NextResponse.json({ message: 'Login successful', username: user.username })
+    const res = NextResponse.json({ message: 'Login successful', username: user.username, role: user.role })
     res.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
