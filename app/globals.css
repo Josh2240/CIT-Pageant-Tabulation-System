@@ -833,6 +833,69 @@ body.app-shell {
   font-size: 0.8rem;
 }
 
+.criteria-table {
+  border: 1px solid var(--pclu-border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.criteria-table thead th {
+  background: #f1f5f9;
+  border-bottom: 2px solid var(--pclu-border);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pclu-slate);
+  padding: 0.6rem 0.75rem;
+}
+
+.criteria-table tbody td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(217, 226, 236, 0.6);
+}
+
+.criteria-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.criteria-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--pclu-indigo);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.criteria-table tfoot td {
+  padding: 0.6rem 0.75rem;
+  border-top: 2px solid var(--pclu-border);
+  background: #f8fafc;
+  font-size: 0.8rem;
+}
+
+.criteria-table .progress {
+  border-radius: 0.5rem;
+  background: #e2e8f0;
+}
+
+.criteria-table .progress-bar {
+  border-radius: 0.5rem;
+  background: var(--pclu-indigo);
+}
+
+.criteria-table .badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 3.2rem;
+}
+
 .scoreboard-table .text-end {
   white-space: nowrap;
 }

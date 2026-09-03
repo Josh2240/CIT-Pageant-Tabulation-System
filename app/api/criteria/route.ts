@@ -5,13 +5,13 @@ interface CriteriaRow {
   id: number
   name: string
   description: string | null
-  weight: number
+  percentage: number
   maxScore: number
 }
 
 export async function GET() {
   const pool = await getPool()
-  const [rows] = await pool.query<CriteriaRow>('SELECT id, name, description, weight, maxScore FROM criteria ORDER BY id')
+  const [rows] = await pool.query<CriteriaRow>('SELECT id, name, description, percentage, maxScore FROM criteria ORDER BY id')
   return NextResponse.json(rows)
 }
 
@@ -23,17 +23,17 @@ export async function POST(req: Request) {
 
   try {
     const pool = await getPool()
-    const weight = Number(body.weight) || 1.0
+    const percentage = Number(body.percentage) || 0
     const maxScore = Number(body.maxScore) || 10.0
 
-    const result = await pool.run('INSERT INTO criteria (name, description, weight, maxScore) VALUES (?, ?, ?, ?)', [
+    const result = await pool.run('INSERT INTO criteria (name, description, percentage, maxScore) VALUES (?, ?, ?, ?)', [
       body.name.trim(),
       body.description || null,
-      weight,
+      percentage,
       maxScore
     ])
 
-    return NextResponse.json({ id: result.insertId, name: body.name.trim(), description: body.description || null, weight, maxScore })
+    return NextResponse.json({ id: result.insertId, name: body.name.trim(), description: body.description || null, percentage, maxScore })
   } catch (err) {
     console.error('Create criteria error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -48,18 +48,18 @@ export async function PUT(req: Request) {
 
   try {
     const pool = await getPool()
-    const weight = Number(body.weight) || 1.0
+    const percentage = Number(body.percentage) || 0
     const maxScore = Number(body.maxScore) || 10.0
 
-    await pool.run('UPDATE criteria SET name = ?, description = ?, weight = ?, maxScore = ? WHERE id = ?', [
+    await pool.run('UPDATE criteria SET name = ?, description = ?, percentage = ?, maxScore = ? WHERE id = ?', [
       body.name.trim(),
       body.description || null,
-      weight,
+      percentage,
       maxScore,
       Number(body.id)
     ])
 
-    return NextResponse.json({ id: Number(body.id), name: body.name.trim(), description: body.description || null, weight, maxScore })
+    return NextResponse.json({ id: Number(body.id), name: body.name.trim(), description: body.description || null, percentage, maxScore })
   } catch (err) {
     console.error('Update criteria error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

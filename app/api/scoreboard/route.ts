@@ -9,7 +9,7 @@ interface Contestant {
 interface Criteria {
   id: number
   name: string
-  weight: number
+  percentage: number
   maxScore: number
 }
 
@@ -32,7 +32,7 @@ export async function GET() {
   const pool = await getPool()
 
   const [contestants] = await pool.query<Contestant>('SELECT id, name FROM contestants')
-  const [criteria] = await pool.query<Criteria>('SELECT id, name, weight, maxScore FROM criteria ORDER BY id')
+  const [criteria] = await pool.query<Criteria>('SELECT id, name, percentage, maxScore FROM criteria ORDER BY id')
   const [scoreDetails] = await pool.query<ScoreDetail>('SELECT scoreId, criteriaId, score FROM score_details')
 
   // Group score details by scoreId
@@ -54,24 +54,19 @@ export async function GET() {
 
     for (const s of scores) {
       const details = detailsByScore.get(s.id) || []
-      let weightedSum = 0
-      let weightTotal = 0
+      let scoreSum = 0
 
       for (const d of details) {
         const crit = criteria.find(cr => cr.id === d.criteriaId)
         if (crit) {
-          const normalized = (d.score / crit.maxScore) * crit.weight
-          weightedSum += normalized
-          weightTotal += crit.weight
+          // Calculate percentage-based contribution: (raw_score / maxScore) * percentage
+          const contribution = (d.score / crit.maxScore) * crit.percentage
+          scoreSum += contribution
           criteriaScores[crit.id] = (criteriaScores[crit.id] || 0) + d.score
         }
       }
 
-      if (weightTotal > 0) {
-        totalWeighted += (weightedSum / weightTotal) * 10 // scale back to 0-10 range
-      } else {
-        totalWeighted += s.score
-      }
+      totalWeighted += scoreSum
       totalRaw += s.score
     }
 

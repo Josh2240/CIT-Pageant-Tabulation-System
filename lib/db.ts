@@ -63,7 +63,7 @@ export async function getPool(): Promise<Pool> {
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         description TEXT,
-        weight DOUBLE NOT NULL DEFAULT 1.0,
+        percentage DOUBLE NOT NULL DEFAULT 0,
         maxScore DOUBLE NOT NULL DEFAULT 10.0,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       )`)
@@ -142,7 +142,7 @@ export async function getPool(): Promise<Pool> {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
           description TEXT,
-          weight REAL NOT NULL DEFAULT 1.0,
+          percentage REAL NOT NULL DEFAULT 0,
           maxScore REAL NOT NULL DEFAULT 10.0,
           createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )`,

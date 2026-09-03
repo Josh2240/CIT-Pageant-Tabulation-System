@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 type Contestant = { id: number; name: string }
 type ScoreRow = { id: number; name: string; total: number; avg: number; count: number; criteriaScores: Record<number, number> }
 type ScoreEntry = { id: number; contestantId: number; judge: string; score: number; createdAt: string }
-type Criteria = { id: number; name: string; description: string | null; weight: number; maxScore: number }
+type Criteria = { id: number; name: string; description: string | null; percentage: number; maxScore: number }
 
 export default function App() {
   const [contestants, setContestants] = useState<Contestant[]>([])
@@ -20,7 +20,7 @@ export default function App() {
   const [editName, setEditName] = useState('')
   const [criteriaName, setCriteriaName] = useState('')
   const [criteriaDesc, setCriteriaDesc] = useState('')
-  const [criteriaWeight, setCriteriaWeight] = useState('1')
+  const [criteriaPercentage, setCriteriaPercentage] = useState('0')
   const [criteriaMax, setCriteriaMax] = useState('10')
   const [editingCriteriaId, setEditingCriteriaId] = useState<number | null>(null)
   const [criteriaScores, setCriteriaScores] = useState<Record<number, string>>({})
@@ -176,14 +176,14 @@ export default function App() {
           id: editingCriteriaId,
           name: criteriaName,
           description: criteriaDesc,
-          weight: Number(criteriaWeight),
+          percentage: Number(criteriaPercentage),
           maxScore: Number(criteriaMax)
         })
       })
       if (!res.ok) throw new Error('Failed to save criteria')
       setCriteriaName('')
       setCriteriaDesc('')
-      setCriteriaWeight('1')
+      setCriteriaPercentage('0')
       setCriteriaMax('10')
       setEditingCriteriaId(null)
       await loadCriteria()
@@ -258,30 +258,26 @@ export default function App() {
                 <span className="panel-icon panel-icon--purple" aria-hidden="true"><i className="bi bi-sliders" /></span>
                 <div>
                   <h2 className="panel-title">Judging Criteria</h2>
-                  <p className="panel-description">Define categories and weights for scoring.</p>
+                  <p className="panel-description">Define categories and percentages for scoring.</p>
                 </div>
               </div>
             </div>
 
             <form onSubmit={saveCriteria} className="criteria-form">
               <div className="row g-2 mb-3">
-                <div className="col-8">
-                  <label className="form-label">Name</label>
+                <div className="col-12">
+                  <label className="form-label">Criterion</label>
                   <input className="form-control form-control-sm" value={criteriaName} onChange={e => setCriteriaName(e.target.value)} placeholder="e.g. Creativity" required />
-                </div>
-                <div className="col-4">
-                  <label className="form-label">Max Score</label>
-                  <input className="form-control form-control-sm" type="number" value={criteriaMax} onChange={e => setCriteriaMax(e.target.value)} placeholder="10" />
                 </div>
               </div>
               <div className="row g-2 mb-3">
                 <div className="col-6">
-                  <label className="form-label">Weight</label>
-                  <input className="form-control form-control-sm" type="number" step="0.1" value={criteriaWeight} onChange={e => setCriteriaWeight(e.target.value)} placeholder="1.0" />
+                  <label className="form-label">Percentage (%)</label>
+                  <input className="form-control form-control-sm" type="number" step="1" min="0" max="100" value={criteriaPercentage} onChange={e => setCriteriaPercentage(e.target.value)} placeholder="e.g. 20" />
                 </div>
                 <div className="col-6">
-                  <label className="form-label">Description</label>
-                  <input className="form-control form-control-sm" value={criteriaDesc} onChange={e => setCriteriaDesc(e.target.value)} placeholder="Optional" />
+                  <label className="form-label">Max Score</label>
+                  <input className="form-control form-control-sm" type="number" value={criteriaMax} onChange={e => setCriteriaMax(e.target.value)} placeholder="10" />
                 </div>
               </div>
               <div className="d-flex gap-2">
@@ -289,7 +285,7 @@ export default function App() {
                   <i className="bi bi-plus-lg" /> {editingCriteriaId ? 'Update' : 'Add'} Criterion
                 </button>
                 {editingCriteriaId && (
-                  <button type="button" className="btn btn-sm btn-secondary" onClick={() => { setEditingCriteriaId(null); setCriteriaName(''); setCriteriaDesc(''); setCriteriaWeight('1'); setCriteriaMax('10') }}>
+                  <button type="button" className="btn btn-sm btn-secondary" onClick={() => { setEditingCriteriaId(null); setCriteriaName(''); setCriteriaDesc(''); setCriteriaPercentage('0'); setCriteriaMax('10') }}>
                     Cancel
                   </button>
                 )}
@@ -298,27 +294,36 @@ export default function App() {
 
             {criteria.length > 0 && (
               <div className="table-responsive mt-3">
-                <table className="table table-sm align-middle mb-0">
+                <table className="table criteria-table align-middle mb-0">
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Weight</th>
-                      <th>Max</th>
+                      <th style={{ width: 40 }}>#</th>
+                      <th>Criterion</th>
+                      <th style={{ width: 120 }}>Percentage</th>
+                      <th style={{ width: 100 }}>Max Score</th>
                       <th style={{ width: 90 }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {criteria.map(c => (
+                    {criteria.map((c, idx) => (
                       <tr key={c.id}>
+                        <td className="text-center"><span className="criteria-index">{idx + 1}</span></td>
                         <td>
                           <strong>{c.name}</strong>
                           {c.description && <div className="text-muted small">{c.description}</div>}
                         </td>
-                        <td>{c.weight}</td>
-                        <td>{c.maxScore}</td>
+                        <td>
+                          <div className="d-flex align-items-center gap-2">
+                            <div className="progress flex-grow-1" style={{ height: 8 }}>
+                              <div className="progress-bar" role="progressbar" style={{ width: `${Math.min(c.percentage, 100)}%` }} aria-valuenow={c.percentage} aria-valuemin={0} aria-valuemax={100} />
+                            </div>
+                            <span className="badge bg-primary rounded-pill">{c.percentage}%</span>
+                          </div>
+                        </td>
+                        <td className="text-center">{c.maxScore}</td>
                         <td>
                           <div className="d-flex gap-1">
-                            <button className="btn btn-sm btn-outline-primary" onClick={() => { setEditingCriteriaId(c.id); setCriteriaName(c.name); setCriteriaDesc(c.description || ''); setCriteriaWeight(String(c.weight)); setCriteriaMax(String(c.maxScore)) }}>
+                            <button className="btn btn-sm btn-outline-primary" onClick={() => { setEditingCriteriaId(c.id); setCriteriaName(c.name); setCriteriaDesc(c.description || ''); setCriteriaPercentage(String(c.percentage)); setCriteriaMax(String(c.maxScore)) }}>
                               <i className="bi bi-pencil" />
                             </button>
                             <button className="btn btn-sm btn-outline-danger" onClick={() => deleteCriteria(c.id)}>
@@ -329,6 +334,14 @@ export default function App() {
                       </tr>
                     ))}
                   </tbody>
+                  <tfoot>
+                    <tr className="table-active">
+                      <td colSpan={2} className="fw-bold">Total</td>
+                      <td className="fw-bold text-center">{criteria.reduce((sum, c) => sum + c.percentage, 0)}%</td>
+                      <td className="fw-bold text-center">{criteria.reduce((sum, c) => sum + c.maxScore, 0)}</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             )}
@@ -382,7 +395,7 @@ export default function App() {
                         />
                       </div>
                       <div className="col-2 text-end text-muted small">
-                        x{c.weight}
+                        {c.percentage}%
                       </div>
                     </div>
                   ))}
@@ -420,7 +433,7 @@ export default function App() {
                       <th style={{ width: 58 }}>Rank</th>
                       <th>Name</th>
                       {criteria.map(c => (
-                        <th key={c.id} className="text-end" title={c.description || c.name}>{c.name}</th>
+                        <th key={c.id} className="text-end" title={c.description || c.name}>{c.name} ({c.percentage}%)</th>
                       ))}
                       <th className="text-end">Total</th>
                       <th className="text-end">Avg</th>
